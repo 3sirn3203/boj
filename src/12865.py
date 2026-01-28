@@ -18,7 +18,7 @@ for i in range(n):
             else:
                 dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - w[i]] + v[i])
         else:
-            if not i:
+            if i:
                 dp[i][j] = dp[i - 1][j]
             
 print(dp[n - 1][k])
