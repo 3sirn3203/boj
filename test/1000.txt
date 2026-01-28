@@ -1,0 +1,11 @@
+input
+10 18
+
+output
+28
+
+input
+3 7
+
+output
+10
