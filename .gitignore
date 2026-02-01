@@ -5,3 +5,4 @@ __pycache__/
 *.pyd
 .env
 downloaded_files/
+.DS_Store
