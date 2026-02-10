@@ -30,7 +30,6 @@ for i in range(m):
 sub_a = sorted(sub_a)
 sub_b = sorted(sub_b)
 cnt_a = [1] * len(sub_a)
-cnt_b = [1] * len(sub_b)
 
 prev, flag, start_idx = sub_a[0], False, 0
 for i in range(1, len(sub_a)):
@@ -48,24 +47,6 @@ for i in range(1, len(sub_a)):
             for j in range(start_idx, i):
                 cnt_a[j] = i - start_idx
             prev = sub_a[i]
-            flag = False
-
-prev, flag, start_idx = sub_b[0], False, 0
-for i in range(1, len(sub_b)):
-    if prev == sub_b[i]:
-        if not flag:
-            start_idx = i - 1
-            flag = True
-        if i == len(sub_b) - 1:
-            for j in range(start_idx, len(sub_b)):
-                cnt_b[j] = i - start_idx + 1
-    else:
-        if not flag:
-            prev = sub_b[i]
-        else:
-            for j in range(start_idx, i):
-                cnt_b[j] = i - start_idx
-            prev = sub_b[i]
             flag = False
 
 ans = 0
