@@ -3,27 +3,29 @@ import sys
 input = sys.stdin.readline
 T = int(input())
 
-def first_step_to_zero(N: int) -> int:
-    def dec(t: int) -> int:
-        m, r = divmod(t, 3)
-        return (3 * m * (m + 1)) // 2 + r * (m + 1)
-
-    lo, hi = 0, 1
-    while dec(hi) <= N:
-        hi *= 2
-
-    while lo < hi:
-        mid = (lo + hi) // 2
-        if dec(mid) > N:
-            hi = mid
-        else:
-            lo = mid + 1
-    return lo - 1
+def is_valid(n, m):
+    q, r = divmod(n, 3)
+    cum = (3 * 3 * q * (q + 1) // 2)
+    if r == 1:
+        cum += 3 * q + 1
+    elif r == 2:
+        cum += 3 * (q + 1) + 3 * q + 1
+    else:
+        cum -= 2
+    if cum <= m:
+        return True
+    else:
+        return False
 
 for _ in range(T):
     m = int(input())
-    ans = 1
-    tmp = (m + 2) // 3
-    ans += first_step_to_zero(tmp)
-    print(ans)
-    
+    ans = 0
+    lo, hi = 0, m
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if is_valid(mid, m):
+            lo = mid + 1
+            ans = mid
+        else:
+            hi = mid - 1
+    print(ans + 1)
