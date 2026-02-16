@@ -1,146 +1,74 @@
 import sys
-import copy
 
-sys.setrecursionlimit(10**6)
 input = sys.stdin.readline
-n = int(input())
-original = [list(map(int, input().split())) for _ in range(n)]
+sys.setrecursionlimit(10**6)
 
-ans = -1
-def mv_left(game):
-    for i in range(n):
+def solve(n, board):
+    ans = 0
+
+    def copy_board(b):
+        return [row[:] for row in b]
+
+    def move_line_left(line):
         modified = [False] * n
-        for j in range(1, n):
-            if not game[i][j]:
+        for i in range(1, n):
+            if not line[i]:
                 continue
-            k = j - 1
-            res = 0
+            k = i - 1
             while True:
                 if k < 0:
-                    res = 1
+                    line[0], line[i] = line[i], 0
                     break
-                if not game[i][k]:
+                if line[k] == 0:
                     k -= 1
                     continue
-                elif game[i][k] == game[i][j] and not modified[k]:
-                    res = 2
+                if line[k] == line[i] and not modified[k]:
+                    line[k] *= 2
+                    line[i] = 0
                     modified[k] = True
                     break
-                else:
-                    res = 3
-                    break
-            if res == 1:
-                game[i][0], game[i][j] = game[i][j], 0
-            elif res == 2:
-                game[i][k] *= 2
-                game[i][j] = 0
-            elif res == 3 and k + 1 != j:
-                game[i][k + 1], game[i][j] = game[i][j], 0
-    return game
-def mv_right(game):
-    for i in range(n):
-        modified = [False] * n
-        for j in range(n - 2, -1, -1):
-            if not game[i][j]:
-                continue
-            k = j + 1
-            res = 0
-            while True:
-                if k >= n:
-                    res = 1
-                    break
-                if not game[i][k]:
-                    k += 1
-                    continue
-                elif game[i][k] == game[i][j] and not modified[k]:
-                    res = 2
-                    modified[k] = True
-                    break
-                else:
-                    res = 3
-                    break
-            if res == 1:
-                game[i][n - 1], game[i][j] = game[i][j], 0
-            elif res == 2:
-                game[i][k] *= 2
-                game[i][j] = 0
-            elif res == 3 and k - 1 != j:
-                game[i][k - 1], game[i][j] = game[i][j], 0
-    return game
-def mv_top(game):
-    for i in range(n):
-        modified = [False] * n
-        for j in range(1, n):
-            if not game[j][i]:
-                continue
-            k = j - 1
-            res = 0
-            while True:
-                if k < 0:
-                    res = 1
-                    break
-                if not game[k][i]:
-                    k -= 1
-                    continue
-                elif game[k][i] == game[j][i] and not modified[k]:
-                    res = 2
-                    modified[k] = True
-                    break
-                else:
-                    res = 3
-                    break
-            if res == 1:
-                game[0][i], game[j][i] = game[j][i], 0
-            elif res == 2:
-                game[k][i] *= 2
-                game[j][i] = 0
-            elif res == 3 and k + 1 != j:
-                game[k + 1][i], game[j][i] = game[j][i], 0
-    return game
-def mv_bottom(game):
-    for i in range(n):
-        modified = [False] * n
-        for j in range(n - 2, -1, -1):
-            if not game[j][i]:
-                continue
-            k = j + 1
-            res = 0
-            while True:
-                if k >= n:
-                    res = 1
-                    break
-                if not game[k][i]:
-                    k += 1
-                    continue
-                elif game[k][i] == game[j][i] and not modified[k]:
-                    res = 2
-                    modified[k] = True
-                    break
-                else:
-                    res = 3
-                    break
-            if res == 1:
-                game[n - 1][i], game[j][i] = game[j][i], 0
-            elif res == 2:
-                game[k][i] *= 2
-                game[j][i] = 0
-            elif res == 3 and k - 1 != j:
-                game[k - 1][i], game[j][i] = game[j][i], 0
-    return game
-def search(cum, game):
-    if cum == 5:
-        global ans
-        tmp = max(map(max, game))
-        ans = ans if ans > tmp else tmp
-        return
-    lgame = mv_left(copy.deepcopy(game))
-    search(cum + 1, lgame)
-    rgame = mv_right(copy.deepcopy(game))
-    search(cum + 1, rgame)
-    tgame = mv_top(copy.deepcopy(game))
-    search(cum + 1, tgame)
-    bgame = mv_bottom(copy.deepcopy(game))
-    search(cum + 1, bgame)
+                if k + 1 != i:
+                    line[k + 1], line[i] = line[i], 0
+                break
 
-search(0, original)
-print(ans)
+    def move(org_b, dir_):
+        b = copy_board(org_b)
+
+        if dir_ == 0:
+            for i in range(n):
+                move_line_left(b[i])
+        elif dir_ == 1:
+            for i in range(n):
+                row = b[i][::-1]
+                move_line_left(row)
+                b[i] = row[::-1]
+        elif dir_ == 2:
+            for c in range(n):
+                col = [b[r][c] for r in range(n)]
+                move_line_left(col)
+                for r in range(n):
+                    b[r][c] = col[r]
+        elif dir_ == 3:
+            for c in range(n):
+                col = [b[r][c] for r in range(n)][::-1]
+                move_line_left(col)
+                col = col[::-1]
+                for r in range(n):
+                    b[r][c] = col[r]
+        return b
+
+    def dfs(depth, org_b):
+        nonlocal ans
+        ans = max(ans, max(map(max, org_b)))
+        if depth == 5:
+            return
+        for d in range(4):
+            dfs(depth + 1, move(org_b, d))
+    
+    dfs(0, board)
+    print(ans)
+
+if __name__ == "__main__":
+    n = int(input())
+    board = [list(map(int, input().split())) for _ in range(n)]
+    solve(n, board)
